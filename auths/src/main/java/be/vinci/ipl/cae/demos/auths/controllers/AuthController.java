@@ -20,35 +20,36 @@ public class AuthController {
         this.userService = userService;
     }
 
-    @PostMapping("/register")
-    public AuthenticatedUser register(@RequestBody Credentials credentials) {
-        if (credentials == null ||
+    private boolean isInvalidCredentials(Credentials credentials){
+        return credentials == null ||
                 credentials.getUsername() == null ||
                 credentials.getUsername().isBlank() ||
                 credentials.getPassword() == null ||
-                credentials.getPassword().isBlank()) {
+                credentials.getPassword().isBlank();
+    }
+
+    @PostMapping("/register")
+    public AuthenticatedUser register(@RequestBody Credentials credentials) {
+        if (isInvalidCredentials(credentials))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
 
         AuthenticatedUser user = userService.register(credentials.getUsername(), credentials.getPassword());
 
-        if (user == null) throw new ResponseStatusException(HttpStatus.CONFLICT);
+        if (user == null)
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+
         return user;
     }
 
     @PostMapping("/login")
     public AuthenticatedUser login(@RequestBody Credentials credentials) {
-        if (credentials == null ||
-                credentials.getUsername() == null ||
-                credentials.getUsername().isBlank() ||
-                credentials.getPassword() == null ||
-                credentials.getPassword().isBlank()) {
+        if (isInvalidCredentials(credentials))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
 
         AuthenticatedUser user = userService.login(credentials.getUsername(), credentials.getPassword());
 
-        if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if (user == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
         return user;
     }
