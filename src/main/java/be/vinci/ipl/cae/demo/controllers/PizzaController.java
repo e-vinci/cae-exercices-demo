@@ -32,8 +32,7 @@ public class PizzaController {
 
     @PostMapping({"", "/"})
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Pizza addPizza(@RequestHeader(value = "Authorization", required = false) String token, @RequestBody NewPizza newPizza) {
-        System.out.println("in controller");
+    public Pizza addPizza(@RequestBody NewPizza newPizza) {
         if (newPizza == null ||
                 newPizza.getTitle() == null ||
                 newPizza.getTitle().isBlank() ||
@@ -47,7 +46,7 @@ public class PizzaController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Pizza deletePizza(@RequestHeader(value = "Authorization", required = false) String token, @PathVariable long id) {
+    public Pizza deletePizza(@PathVariable long id) {
         Pizza pizza = pizzaService.deletePizza(id);
         if (pizza == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         return pizza;
@@ -55,7 +54,7 @@ public class PizzaController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Pizza updatePizza(@RequestHeader(value = "Authorization", required = false) String token, @PathVariable long id, @RequestBody NewPizza newPizza) {
+    public Pizza updatePizza(@PathVariable long id, @RequestBody NewPizza newPizza) {
         if (newPizza == null ||
                 (newPizza.getTitle() != null && newPizza.getTitle().isBlank()) ||
                 (newPizza.getContent() != null && newPizza.getContent().isBlank())) {
