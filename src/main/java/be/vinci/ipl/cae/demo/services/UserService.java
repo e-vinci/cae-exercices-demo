@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.configuration.JwtProperties;
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.entities.User;
 import be.vinci.ipl.cae.demo.repositories.UserRepository;
@@ -13,20 +14,21 @@ import java.util.Date;
 @Service
 public class UserService {
 
-    private static final String jwtSecret = "ilovemypizza!";
     private static final long lifetimeJwt = 24*60*60*1000; // 24 hours
-
-    private static final Algorithm algorithm = Algorithm.HMAC256(jwtSecret);
 
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final JwtProperties jwtProperties;
 
-    public UserService(BCryptPasswordEncoder passwordEncoder, UserRepository userRepository) {
+    public UserService(BCryptPasswordEncoder passwordEncoder, UserRepository userRepository, JwtProperties jwtProperties) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
+        this.jwtProperties = jwtProperties;
     }
 
     public AuthenticatedUser createJwtToken(String username) {
+        Algorithm algorithm = Algorithm.HMAC256(jwtProperties.getSecret());
+
         String token = JWT.create()
                 .withIssuer("auth0")
                 .withClaim("username", username)
@@ -42,6 +44,8 @@ public class UserService {
     }
 
     public String verifyJwtToken(String token) {
+        Algorithm algorithm = Algorithm.HMAC256(jwtProperties.getSecret());
+
         try {
             return JWT.require(algorithm).build().verify(token).getClaim("username").asString();
         } catch (Exception e) {
